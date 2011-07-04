@@ -1,0 +1,40 @@
+#!/usr/bin/python
+import os
+import sqlite3
+#Change this
+PATH_TO_INSTALL = "/home/zhuowei/Documents/repos/URLShortener"
+
+def print_fail():
+	print "Status: 404 Not Found"
+	print "Content-Type: text/plain"
+	print 
+	print "This short url does not exist. Please try again in a different universe,"
+
+
+query_string = os.environ["QUERY_STRING"].strip()
+if not query_string.isdigit():
+	print_fail()
+	exit()
+
+urlid = int(query_string)
+
+# pull the url out of the database
+
+conn = sqlite3.connect(PATH_TO_INSTALL + "/c/data/urls.db")
+
+c = conn.cursor();
+
+c.execute("select url from urls where id = ?", (urlid, ));
+urldata = c.fetchone();
+
+if urldata == None:
+	print_fail()
+	exit()
+
+print "Content-Type: text/html"
+print
+print "<!DOCTYPE html>\n<html><head><title>Redirecting</title>"
+print "<script type=\"text/javascript\">"
+print "window.location = '" + urldata[0] + "';"
+print "</script>"
+print "<body>Redirecting to " + urldata[0] + "</body></html>"
